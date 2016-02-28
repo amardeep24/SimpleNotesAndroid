@@ -1,7 +1,6 @@
 package com.amardeep.simplenotes.activity;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -29,10 +28,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.amardeep.simplenotes.R;
 import com.amardeep.simplenotes.adapter.NoteAdapter;
 import com.amardeep.simplenotes.bean.NoteBean;
+import com.amardeep.simplenotes.sync.SyncTask;
 import com.amardeep.simplenotes.util.GraphicsUtil;
 import com.amardeep.simplenotes.util.SqlUtil;
 import com.amardeep.simplenotes.util.TimeDateUtil;
@@ -114,17 +115,27 @@ public class NotepadMenuActivity extends Activity {
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-       /* if(id == R.id.action_search)
+        switch(item.getItemId())
         {
-        	Log.i("search","pressed");
-        	onSearchRequested();
+        case R.id.action_settings:
+        {
+            	return true;
+        }
+        case R.id.action_sync:
+        {
+        	Log.i("sync","pressed");
+        	Toast.makeText(getApplicationContext(), "Syncing..", Toast.LENGTH_LONG).show();
+        	new SyncTask().execute(NotepadMenuActivity.this);
         	return true;
-        }*/
+        }
+        }
+        
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    protected void onStart() {
+    	super.onStart();
+    	refreshActivity();
     }
     public void refreshActivity()
     {

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,7 +23,9 @@ import android.widget.Toast;
 
 import com.amardeep.simplenotes.R;
 import com.amardeep.simplenotes.bean.NoteBean;
+import com.amardeep.simplenotes.constants.SimpleNotesConstants;
 import com.amardeep.simplenotes.util.GraphicsUtil;
+import com.amardeep.simplenotes.util.NoteNetworkUtil;
 import com.amardeep.simplenotes.util.SqlUtil;
 import com.amardeep.simplenotes.util.TimeDateUtil;
 
@@ -88,54 +91,11 @@ EditText editTitle;
 			date.setText(note.getNoteDate());
 			content.setText(note.getNoteContent());
 		}
-		/*FileUtil fileUtil=new FileUtil();
-		title.setText(fileName);
-		SpannableString underlinedDate = new SpannableString(fileUtil.getFileCreationTime(fileName));
-		underlinedDate.setSpan(new UnderlineSpan(), 0, underlinedDate.length(), 0);
-		date.setText(underlinedDate);
-		content.setText(fileUtil.readFile(fileName));*/
-		/*final Button edit=(Button)findViewById(R.id.editSave);
-		edit.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				Log.i("ViewSwitcher",edit.getText().toString());
-				if(edit.getText().equals("Edit"))
-				{
-				 edit.setText("Save");
-				 String contentText=content.getText().toString();
-				// contentText=contentText.substring(0,contentText.lastIndexOf("\n"));
-				 content.setVisibility(View.GONE);
-				 editNote.setVisibility(View.VISIBLE);
-				 editNote.setText(contentText);
-				 Log.i("ViewSwitcher","button text changed to save");
-				}
-				else if(edit.getText().equals("Save"))
-				{
-					 edit.setText("Edit");
-					 String editedContentText=editNote.getText().toString();
-					 Log.i("ViewSwitcher",editedContentText);
-					 content.setText(editedContentText);
-					 editNote.setVisibility(View.GONE);
-					 content.setVisibility(View.VISIBLE);
-					 FileUtil fileUtil=new FileUtil();
-					 fileUtil.writeFile(fileName, editedContentText);
-					 SpannableString underlinedDate = new SpannableString(fileUtil.getFileCreationTime(fileName));
-					 underlinedDate.setSpan(new UnderlineSpan(), 0, underlinedDate.length(), 0);
-					 date.setText(underlinedDate);
-					 String titleName=title.getText().toString();
-					// String oldDate=date.getText().toString();
-					// String oldNoteId=String.valueOf((titleName+oldDate).hashCode());
-					 String noteDate=TimeDateUtil.returnCurrentTime();
-					 date.setText(noteDate);
-					 //String newNoteId=String.valueOf((titleName+noteDate).hashCode());
-					 NoteBean noteBean=new NoteBean(noteId,titleName,editedContentText,noteDate);
-					 sqlUtil.updateNote(noteBean,noteId);
-					 Log.i("ViewSwitcher","button text changed to edit");
-				}
-				
-			}
-		});*/
+		//dev mode
+				StrictMode.ThreadPolicy policy = new StrictMode.
+						ThreadPolicy.Builder().permitAll().build();
+						StrictMode.setThreadPolicy(policy); 
+		
 	}
 
 	@Override
@@ -188,6 +148,7 @@ EditText editTitle;
 		}
 		case R.id.action_note_save:
 		{
+			String response=null;
 			editedContentText=editNote.getText().toString();
 			editedTitleText=editTitle.getText().toString();
 			if(editedTitleText.equals("")||editedTitleText==null)
@@ -209,8 +170,17 @@ EditText editTitle;
 			String noteDate=TimeDateUtil.returnCurrentTime();
 			date.setText(noteDate);
 			//String newNoteId=String.valueOf((titleName+noteDate).hashCode());
-			 String titleName=title.getText().toString();
-			NoteBean noteBean=new NoteBean(noteId,titleName,editedContentText,noteDate);
+			String titleName=title.getText().toString();
+			Boolean noteSyncFlag=false;
+			NoteBean noteBean=new NoteBean(noteId,titleName,editedContentText,noteDate,noteSyncFlag);
+			if(NoteNetworkUtil.checkNetwork(this))
+			{
+				Toast.makeText(getApplicationContext(), "Updating Note to cloud", Toast.LENGTH_LONG).show();
+				response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_EDIT_URL, noteBean,this);
+				noteSyncFlag=true;
+			}
+			noteBean.setNoteSyncFlag(noteSyncFlag);
+			Toast.makeText(this, response, Toast.LENGTH_LONG).show();
 			sqlUtil.updateNote(noteBean,noteId);
 			Log.i("ViewSwitcher","button text changed to edit");
 			return true;
@@ -224,7 +194,14 @@ EditText editTitle;
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
+						String response=null;
 						//String noteId=String.valueOf((titleName.substring(0,titleName.indexOf("\n"))+titleName.substring(titleName.indexOf("\n")+1,titleName.length())).hashCode());
+						if(NoteNetworkUtil.checkNetwork(ViewNoteActivity.this))
+						{
+							Toast.makeText(getApplicationContext(), "Deleting Note in the cloud", Toast.LENGTH_LONG).show();
+							response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_DELETE_URL, note,ViewNoteActivity.this);
+						}
+						Toast.makeText(ViewNoteActivity.this, response, Toast.LENGTH_LONG).show();
 						sqlUtil.deleteNote(noteId);
 						Toast.makeText(ViewNoteActivity.this,"Note Deleted!",Toast.LENGTH_SHORT).show();
 						ViewNoteActivity.this.finish();

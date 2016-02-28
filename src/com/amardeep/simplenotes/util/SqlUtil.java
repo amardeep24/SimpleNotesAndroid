@@ -16,7 +16,7 @@ import com.amardeep.simplenotes.bean.NoteBean;
 public class SqlUtil extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 12;
  
     // Database Name
     private static final String DATABASE_NAME = "notes";
@@ -26,11 +26,13 @@ public class SqlUtil extends SQLiteOpenHelper {
  
     // Table Columns names
     private static class NoteColumns implements BaseColumns{
-    private static final String TABLE_NOTES = "notes";
+    private static final String TABLE_NOTES = "notes_table";
     private static final String NOTE_ID = "note_id";
-    private static final String NOTE_TITLE = "title";
+    private static final String NOTE_TITLE = "note_title";
     private static final String NOTE_DATE = "note_date";
-    private static final String NOTE_CONTENT = "content";
+    private static final String NOTE_CONTENT = "note_content";
+    //added this new field
+    private static final String NOTE_SYNC_FLAG= "note_sync_flag";
     }
  
     public SqlUtil(Context context) {
@@ -40,8 +42,10 @@ public class SqlUtil extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
+		//added new param  NoteColumns.NOTE_SYNC_FLAG + " INTEGER DEFAULT 0 " 
 		   String CREATE_NOTES_TABLE = "CREATE TABLE " + NoteColumns.TABLE_NOTES  + "(" + NoteColumns._ID + " INTEGER PRIMARY KEY," + NoteColumns.NOTE_ID +" TEXT,"
-				   						+ NoteColumns.NOTE_TITLE + " TEXT,"+ NoteColumns.NOTE_CONTENT + " TEXT," + NoteColumns.NOTE_DATE+ " TEXT"+ ")";
+				   						+ NoteColumns.NOTE_TITLE + " TEXT,"+ NoteColumns.NOTE_CONTENT + " TEXT, " + NoteColumns.NOTE_DATE+ " TEXT, "+ NoteColumns.NOTE_SYNC_FLAG  
+				   						+ " INTEGER " + ")";
 		   Log.d("creating notes table with the query : ",CREATE_NOTES_TABLE);
 	        db.execSQL(CREATE_NOTES_TABLE);
 		
@@ -62,13 +66,14 @@ public class SqlUtil extends SQLiteOpenHelper {
 	    SQLiteDatabase db = this.getReadableDatabase();
 	 
 	    Cursor cursor = db.query(NoteColumns.TABLE_NOTES, new String[] { NoteColumns.NOTE_ID,NoteColumns.NOTE_TITLE, 
-	    		NoteColumns.NOTE_CONTENT,NoteColumns.NOTE_DATE }, NoteColumns.NOTE_ID + "=?",
+	    		NoteColumns.NOTE_CONTENT,NoteColumns.NOTE_DATE,NoteColumns.NOTE_SYNC_FLAG }, NoteColumns.NOTE_ID + "=?",
 	            new String[] { id }, null, null, null, null);
 	    if (cursor != null){
 	        cursor.moveToFirst();
 	    }
 	   // Log.d("fro sql util get note : ",cursor.getColumnName(0)+cursor.getColumnName(3));
-	    NoteBean note = new NoteBean(cursor.getString(0),cursor.getString(1), cursor.getString(2),cursor.getString(3));
+	    //added new parameter to NoteBean constructor ,(cursor.getInt(4)==1)
+	    NoteBean note = new NoteBean(cursor.getString(0),cursor.getString(1), cursor.getString(2),cursor.getString(3),(cursor.getInt(4)==1));
 	    // return note
 	    return note;
 	}
@@ -80,6 +85,14 @@ public class SqlUtil extends SQLiteOpenHelper {
 	    values.put(NoteColumns.NOTE_TITLE, note.getNoteTitle()); 
 	    values.put(NoteColumns.NOTE_CONTENT,note.getNoteContent());
 	    values.put(NoteColumns.NOTE_DATE,note.getNoteDate());
+	    //added this field
+	    if(note.getNoteSyncFlag()== true)
+	    {
+	    	 values.put(NoteColumns.NOTE_SYNC_FLAG,1);
+	    }
+	    else
+	    	values.put(NoteColumns.NOTE_SYNC_FLAG,0);
+	   
 	    //Log.d("note id passed for creation :",note.getNoteId());
 	    // Inserting Row
         long noteId=db.insert(NoteColumns.TABLE_NOTES, null, values); 
@@ -131,6 +144,7 @@ public class SqlUtil extends SQLiteOpenHelper {
 		   // Log.d("note id passed for deletion :",noteId);
 		    db.delete(NoteColumns.TABLE_NOTES, NoteColumns.NOTE_ID + " = ?",
 		            new String[] { noteId});
+		    Log.d("SQLUtil deleted",noteId);
 		    //db.delete(TABLE_NOTES,null,null);
 		    db.close();
 		}

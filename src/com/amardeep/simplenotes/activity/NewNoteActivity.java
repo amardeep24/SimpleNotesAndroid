@@ -2,23 +2,21 @@ package com.amardeep.simplenotes.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.amardeep.simplenotes.R;
 import com.amardeep.simplenotes.bean.NoteBean;
+import com.amardeep.simplenotes.constants.SimpleNotesConstants;
 import com.amardeep.simplenotes.util.GraphicsUtil;
+import com.amardeep.simplenotes.util.NoteNetworkUtil;
 import com.amardeep.simplenotes.util.RandomUtil;
 import com.amardeep.simplenotes.util.SqlUtil;
 import com.amardeep.simplenotes.util.TimeDateUtil;
@@ -48,59 +46,13 @@ public class NewNoteActivity extends Activity {
         
 		titleText=(EditText)findViewById(R.id.titleText);
 		contentText=(EditText)findViewById(R.id.contentText);
+		if(!NoteNetworkUtil.checkNetwork(this))
+			Toast.makeText(getApplicationContext(), "Not connected !", Toast.LENGTH_LONG).show();
+		//dev mode
+		StrictMode.ThreadPolicy policy = new StrictMode.
+				ThreadPolicy.Builder().permitAll().build();
+				StrictMode.setThreadPolicy(policy); 
 		
-		//Button save=(Button)findViewById(R.id.save);
-		//final FileUtil fileUtil=new FileUtil();
-		
-		/*final ToggleButton toggle = (ToggleButton) findViewById(R.id.reminder);
-		toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-		    @Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		        if (isChecked) {
-		        		timeDate =new TimeDateUtil();
-		        		final String title=titleText.getText().toString();
-		        		timeDate.showTimeDateDialog(NewNoteActivity.this);
-		        } else {
-		           return;
-		        }
-		    }
-		});*/
-		/*save.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				final String content=contentText.getText().toString();
-				final String title=titleText.getText().toString();
-				final String noteDate=TimeDateUtil.returnCurrentTime();
-				final String noteId=RandomUtil.generateNoteId();
-				Log.d("note id hashcode generated during saving operation",noteId+noteDate);
-				NoteBean note=new NoteBean(noteId,title,content,noteDate);
-				SqlUtil sqlUtil=new SqlUtil(NewNoteActivity.this);
-				long result=sqlUtil.addNote(note);
-				if(timeDate!=null)
-				{
-					timeDate.setAlarm(noteId,title,timeDate.getCalendar(), NewNoteActivity.this);
-				}
-				titleText.setText("");
-				contentText.setText("");
-				toggle.setChecked(false);
-				timeDate=null;
-				if(result>0)
-				Toast.makeText(getApplicationContext(), "Note saved!", Toast.LENGTH_LONG).show();
-					if(fileUtil.writeFile(title,content))
-						{
-							if(timeDate!=null)
-							{
-								timeDate.setAlarm(title, timeDate.getCalendar(), NewNoteActivity.this);
-							}
-							titleText.setText("");
-							contentText.setText("");
-							toggle.setChecked(false);
-							timeDate=null;
-							Toast.makeText(getApplicationContext(), "Note saved!", Toast.LENGTH_LONG).show();
-						};
-			}
-		});*/
 	}
 	
 	@Override
@@ -115,6 +67,7 @@ public class NewNoteActivity extends Activity {
 		switch(item.getItemId())
 		{
 		case R.id.action_save:{
+			String response=null;
 			final String content=contentText.getText().toString();
 			final String title=titleText.getText().toString();
 			final String noteDate=TimeDateUtil.returnCurrentTime();
@@ -125,12 +78,23 @@ public class NewNoteActivity extends Activity {
 				break;
 			}
 			Log.d("note id hashcode generated during saving operation",noteId+noteDate);
-			NoteBean note=new NoteBean(noteId,title,content,noteDate);
+			Boolean noteSyncFlag=false;
 			SqlUtil sqlUtil=new SqlUtil(NewNoteActivity.this);
+			NoteBean note=new NoteBean(noteId,title,content,noteDate,noteSyncFlag);
+			if(NoteNetworkUtil.checkNetwork(this))
+			{
+				Toast.makeText(getApplicationContext(), "Posting Note to cloud", Toast.LENGTH_LONG).show();
+				response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_SAVE_URL, note,this);
+				noteSyncFlag=true;
+			}
+			note.setNoteSyncFlag(noteSyncFlag);
+			Toast.makeText(this, response, Toast.LENGTH_LONG).show();
 			long result=sqlUtil.addNote(note);
 			if(timeDate!=null)
 			{
+				
 				timeDate.setAlarm(noteId,title,timeDate.getCalendar(), NewNoteActivity.this);
+				
 			}
 			titleText.setText("");
 			contentText.setText("");
@@ -138,7 +102,7 @@ public class NewNoteActivity extends Activity {
 			
 			timeDate=null;
 			if(result>0)
-			Toast.makeText(getApplicationContext(), "Note saved!", Toast.LENGTH_LONG).show();
+				Toast.makeText(getApplicationContext(), "Note saved!", Toast.LENGTH_LONG).show();
 			return true;
 			}
 		case R.id.action_reminder:
