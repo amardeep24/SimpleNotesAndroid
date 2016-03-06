@@ -6,6 +6,7 @@ import com.amardeep.simplenotes.util.NoteNetworkUtil;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 public class EditTask extends AsyncTask<Object,Void,String>{
 
@@ -14,6 +15,7 @@ public class EditTask extends AsyncTask<Object,Void,String>{
 		NoteBean note=(NoteBean)params[0];
 		Context context=(Context)params[1];
 		String response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_EDIT_URL, note,context);	
+		Log.d("EditTask",response);
 		return response;
 	}
 

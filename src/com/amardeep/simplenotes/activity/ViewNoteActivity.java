@@ -1,16 +1,21 @@
 package com.amardeep.simplenotes.activity;
 
+import java.io.IOException;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -24,9 +29,11 @@ import android.widget.Toast;
 
 import com.amardeep.simplenotes.R;
 import com.amardeep.simplenotes.bean.NoteBean;
+import com.amardeep.simplenotes.constants.SimpleNotesConstants;
 import com.amardeep.simplenotes.sync.DeleteTask;
 import com.amardeep.simplenotes.sync.EditTask;
 import com.amardeep.simplenotes.util.GraphicsUtil;
+import com.amardeep.simplenotes.util.ImageUtil;
 import com.amardeep.simplenotes.util.NoteNetworkUtil;
 import com.amardeep.simplenotes.util.SqlUtil;
 import com.amardeep.simplenotes.util.TimeDateUtil;
@@ -40,16 +47,19 @@ String titleText;
 String editedContentText;
 String editedTitleText;
 String noteId;
+String imageBase64String;
 SqlUtil sqlUtil;
 TimeDateUtil timeDate;
 NoteBean note;
 MenuItem edit;
 MenuItem save;
 MenuItem delete;
+MenuItem attach;
 TextView title;
 TextView date;
 TextView content;
-ImageView image;
+ImageView imageView;
+ImageView imageEditView;
 EditText editNote;
 EditText editTitle;
 	@Override
@@ -70,19 +80,21 @@ EditText editTitle;
 		title=(TextView)findViewById(R.id.title);
 		date=(TextView)findViewById(R.id.date);
 		content=(TextView)findViewById(R.id.content);
-		image=(ImageView)findViewById(R.id.noteViewImage);
+		imageView=(ImageView)findViewById(R.id.noteViewImage);
+		imageEditView=(ImageView)findViewById(R.id.noteEditImage);
 		Log.i("boolean flag",String.valueOf(editFlag));
 		if(editFlag)
 		{
 			
 				content.setVisibility(View.GONE);
 				title.setVisibility(View.GONE);
-				image.setVisibility(View.GONE);
+				imageView.setVisibility(View.GONE);
 		}
 		else{
 			
 				editNote.setVisibility(View.GONE);
 				editTitle.setVisibility(View.GONE);
+				imageEditView.setVisibility(View.GONE);
 				
 		}
 		noteId=getIntent().getStringExtra("noteId");
@@ -105,7 +117,8 @@ EditText editTitle;
 			if(bitmap!=null){
 				int scaleFactor = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
 	            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 512, scaleFactor, true);
-				image.setImageBitmap(scaledBitmap);
+				imageView.setImageBitmap(scaledBitmap);
+				imageEditView.setImageBitmap(scaledBitmap);
 				}
 			}
 		}
@@ -124,14 +137,17 @@ EditText editTitle;
 		edit=(MenuItem)menu.findItem(R.id.action_edit);
 		save=(MenuItem)menu.findItem(R.id.action_note_save);
 		delete=(MenuItem)menu.findItem(R.id.action_delete);
+		attach=(MenuItem)menu.findItem(R.id.action_attach);
 		if(editFlag)
 		{
 			save.setVisible(true);
+			attach.setVisible(true);
 			edit.setVisible(false);
 			delete.setVisible(false);
 		}
 		else{
 			save.setVisible(false);
+			attach.setVisible(false);
 			edit.setVisible(true);
 			delete.setVisible(true);
 		}
@@ -152,13 +168,16 @@ EditText editTitle;
 			edit.setVisible(false);
 			delete.setVisible(false);
 			save.setVisible(true);
+			attach.setVisible(true);
 			contentText=content.getText().toString();
 			titleText=title.getText().toString();
 			// contentText=contentText.substring(0,contentText.lastIndexOf("\n"));
 			content.setVisibility(View.GONE);
 			title.setVisibility(View.GONE);
+			imageView.setVisibility(View.GONE);
 		    editNote.setVisibility(View.VISIBLE);
 		    editTitle.setVisibility(View.VISIBLE);
+		    imageEditView.setVisibility(View.VISIBLE);
 			editNote.setText(contentText);
 			editTitle.setText(titleText);
 			Log.i("ViewSwitcher","button text changed to save");
@@ -178,19 +197,27 @@ EditText editTitle;
 			delete.setVisible(true);
 			edit.setVisible(true);
 			save.setVisible(false);
+			attach.setVisible(false);
 		    Log.i("ViewSwitcher",editedContentText);
 			content.setText(editedContentText);
 			title.setText(editedTitleText);
 			editNote.setVisibility(View.GONE);
 			editTitle.setVisibility(View.GONE);
+			imageEditView.setVisibility(View.GONE);
 			content.setVisibility(View.VISIBLE);
 			title.setVisibility(View.VISIBLE);
+			imageView.setVisibility(View.VISIBLE);
 			String noteDate=TimeDateUtil.returnCurrentTime();
 			date.setText(noteDate);
 			//String newNoteId=String.valueOf((titleName+noteDate).hashCode());
 			String titleName=title.getText().toString();
 			Boolean noteSyncFlag=false;
 			NoteBean noteBean=new NoteBean(noteId,titleName,editedContentText,noteDate,noteSyncFlag);
+			if(imageBase64String!=null)
+			{
+				Log.d("ViewNoteActivity edit",imageBase64String);
+				noteBean.setNoteImage(imageBase64String);
+			}
 			if(NoteNetworkUtil.checkNetwork(this))
 			{
 				Toast.makeText(getApplicationContext(), "Updating note...", Toast.LENGTH_LONG).show();
@@ -232,6 +259,13 @@ EditText editTitle;
 				alert.show();
 				return true;
 		}
+		case R.id.action_attach:
+		{
+			imageView.setImageDrawable(null);
+			imageEditView.setImageDrawable(null);
+			showFileChooser();
+			return true;
+		}
 		
 		}
 		return super.onOptionsItemSelected(item);
@@ -245,10 +279,12 @@ EditText editTitle;
 		{
 			editNote.setVisibility(View.GONE);
 			editTitle.setVisibility(View.GONE);
+			imageEditView.setVisibility(View.GONE);
 		}
 		else{
 			content.setVisibility(View.GONE);
 			title.setVisibility(View.GONE);
+			imageView.setVisibility(View.GONE);
 		}
 	}
 	@Override
@@ -259,12 +295,39 @@ EditText editTitle;
 		{
 			editNote.setVisibility(View.GONE);
 			editTitle.setVisibility(View.GONE);
+			imageEditView.setVisibility(View.GONE);
 		}
 		else{
 			content.setVisibility(View.GONE);
 			title.setVisibility(View.GONE);
+			imageView.setVisibility(View.GONE);
 		}
 	}
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == SimpleNotesConstants.PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+			 
+            Uri filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                int scaleFactor = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+                Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 512, scaleFactor, true);
+                imageEditView.setImageBitmap(scaledBitmap);
+                imageView.setImageBitmap(scaledBitmap);
+                imageBase64String=ImageUtil.encodeString(bitmap);
+                Log.d("NewNoteActivity",imageBase64String);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+	}
+	private void showFileChooser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select image"),SimpleNotesConstants.PICK_IMAGE_REQUEST);
+    }
 	
 	
 }

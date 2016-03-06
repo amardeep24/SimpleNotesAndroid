@@ -16,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -49,8 +50,8 @@ public class SearchableActivity extends Activity{
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				Intent intent=new Intent(SearchableActivity.this,ViewNoteActivity.class);
-				TextView text=(TextView)view;
-				String noteId=(String)text.getTag();
+				LinearLayout noteView=(LinearLayout)view;
+				String noteId=(String)noteView.getTag();
 				intent.putExtra("noteId",noteId);
 				startActivity(intent);
 				

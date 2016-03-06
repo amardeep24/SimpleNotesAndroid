@@ -132,6 +132,8 @@ public class SqlUtil extends SQLiteOpenHelper {
 		    values.put(NoteColumns.NOTE_TITLE, note.getNoteTitle()); 
 		    values.put(NoteColumns.NOTE_CONTENT,note.getNoteContent());
 		    values.put(NoteColumns.NOTE_DATE,note.getNoteDate());
+		    if(note.getNoteImage()!=null)
+		    	values.put(NoteColumns.NOTE_IMAGE,note.getNoteImage());
 		    Log.d("note id passed for updatation :",note.getNoteId());
 		    int result=db.update(NoteColumns.TABLE_NOTES, values, NoteColumns.NOTE_ID + " = ?",
 		            new String[] {noteId});
