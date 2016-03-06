@@ -14,16 +14,22 @@
         android:title="@string/action_save"
         android:icon="@drawable/ic_done_white_24dp"/>
      <item
+        android:id="@+id/action_attach"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:title="@string/action_attach"
+        android:icon="@drawable/ic_attach_file_white_24dp"/>
+     <item
         android:id="@+id/action_redo"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="@string/action_save"
+        android:title="@string/action_redo"
         android:icon="@drawable/ic_redo_white_24dp"/>
      <item
         android:id="@+id/action_undo"
         android:orderInCategory="100"
         android:showAsAction="always"
-        android:title="@string/action_save"
+        android:title="@string/action_undo"
         android:icon="@drawable/ic_undo_white_24dp"/>
       <item
         android:id="@+id/action_reminder"

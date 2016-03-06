@@ -4,26 +4,28 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.amardeep.simplenotes.R;
 import com.amardeep.simplenotes.bean.NoteBean;
-import com.amardeep.simplenotes.constants.SimpleNotesConstants;
+import com.amardeep.simplenotes.sync.DeleteTask;
+import com.amardeep.simplenotes.sync.EditTask;
 import com.amardeep.simplenotes.util.GraphicsUtil;
 import com.amardeep.simplenotes.util.NoteNetworkUtil;
 import com.amardeep.simplenotes.util.SqlUtil;
@@ -44,9 +46,10 @@ NoteBean note;
 MenuItem edit;
 MenuItem save;
 MenuItem delete;
-TextView content;
 TextView title;
 TextView date;
+TextView content;
+ImageView image;
 EditText editNote;
 EditText editTitle;
 	@Override
@@ -54,7 +57,8 @@ EditText editTitle;
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_view_note);
 		//stting status bar color
-		GraphicsUtil.changeStatusBarColor(this);
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+			GraphicsUtil.changeStatusBarColor(this);
 		//setting action bar color
         ActionBar bar = getActionBar();
         bar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#FF9933")));
@@ -64,15 +68,16 @@ EditText editTitle;
 		editNote=(EditText)findViewById(R.id.editContent);   
 		editTitle=(EditText)findViewById(R.id.editTitle);
 		title=(TextView)findViewById(R.id.title);
-		content=(TextView)findViewById(R.id.content);
 		date=(TextView)findViewById(R.id.date);
+		content=(TextView)findViewById(R.id.content);
+		image=(ImageView)findViewById(R.id.noteViewImage);
 		Log.i("boolean flag",String.valueOf(editFlag));
 		if(editFlag)
 		{
 			
 				content.setVisibility(View.GONE);
 				title.setVisibility(View.GONE);
-		
+				image.setVisibility(View.GONE);
 		}
 		else{
 			
@@ -90,6 +95,19 @@ EditText editTitle;
 			underlinedDate.setSpan(new UnderlineSpan(), 0, underlinedDate.length(), 0);*/
 			date.setText(note.getNoteDate());
 			content.setText(note.getNoteContent());
+			//decoding image from base64 string
+			if(note.getNoteImage()!=null)
+			{
+			String encodedString=note.getNoteImage();
+			String pureBase64Encoded = encodedString.substring(encodedString.indexOf(",")  + 1);
+			byte[] decodedBytes = Base64.decode(pureBase64Encoded, Base64.DEFAULT);	
+			Bitmap bitmap=BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+			if(bitmap!=null){
+				int scaleFactor = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+	            Bitmap scaledBitmap = Bitmap.createScaledBitmap(bitmap, 512, scaleFactor, true);
+				image.setImageBitmap(scaledBitmap);
+				}
+			}
 		}
 		//dev mode
 				StrictMode.ThreadPolicy policy = new StrictMode.
@@ -175,13 +193,14 @@ EditText editTitle;
 			NoteBean noteBean=new NoteBean(noteId,titleName,editedContentText,noteDate,noteSyncFlag);
 			if(NoteNetworkUtil.checkNetwork(this))
 			{
-				Toast.makeText(getApplicationContext(), "Updating Note to cloud", Toast.LENGTH_LONG).show();
-				response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_EDIT_URL, noteBean,this);
+				Toast.makeText(getApplicationContext(), "Updating note...", Toast.LENGTH_LONG).show();
+				//response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_EDIT_URL, noteBean,this);
+				new EditTask().execute(noteBean,ViewNoteActivity.this);
 				noteSyncFlag=true;
 			}
 			noteBean.setNoteSyncFlag(noteSyncFlag);
-			Toast.makeText(this, response, Toast.LENGTH_LONG).show();
 			sqlUtil.updateNote(noteBean,noteId);
+			Toast.makeText(this, "Note Saved!", Toast.LENGTH_LONG).show();
 			Log.i("ViewSwitcher","button text changed to edit");
 			return true;
 		}
@@ -198,10 +217,11 @@ EditText editTitle;
 						//String noteId=String.valueOf((titleName.substring(0,titleName.indexOf("\n"))+titleName.substring(titleName.indexOf("\n")+1,titleName.length())).hashCode());
 						if(NoteNetworkUtil.checkNetwork(ViewNoteActivity.this))
 						{
-							Toast.makeText(getApplicationContext(), "Deleting Note in the cloud", Toast.LENGTH_LONG).show();
-							response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_DELETE_URL, note,ViewNoteActivity.this);
+							Toast.makeText(getApplicationContext(), "Deleting note...", Toast.LENGTH_LONG).show();
+							//response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_DELETE_URL, note,ViewNoteActivity.this);
+							new DeleteTask().execute(note,ViewNoteActivity.this);
 						}
-						Toast.makeText(ViewNoteActivity.this, response, Toast.LENGTH_LONG).show();
+						//Toast.makeText(ViewNoteActivity.this, response, Toast.LENGTH_LONG).show();
 						sqlUtil.deleteNote(noteId);
 						Toast.makeText(ViewNoteActivity.this,"Note Deleted!",Toast.LENGTH_SHORT).show();
 						ViewNoteActivity.this.finish();

@@ -16,7 +16,7 @@ import com.amardeep.simplenotes.bean.NoteBean;
 public class SqlUtil extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
  
     // Database Name
     private static final String DATABASE_NAME = "notes";
@@ -32,6 +32,7 @@ public class SqlUtil extends SQLiteOpenHelper {
     private static final String NOTE_DATE = "note_date";
     private static final String NOTE_CONTENT = "note_content";
     //added this new field
+    private static final String NOTE_IMAGE = "note_image";
     private static final String NOTE_SYNC_FLAG= "note_sync_flag";
     }
  
@@ -44,7 +45,8 @@ public class SqlUtil extends SQLiteOpenHelper {
 		// TODO Auto-generated method stub
 		//added new param  NoteColumns.NOTE_SYNC_FLAG + " INTEGER DEFAULT 0 " 
 		   String CREATE_NOTES_TABLE = "CREATE TABLE " + NoteColumns.TABLE_NOTES  + "(" + NoteColumns._ID + " INTEGER PRIMARY KEY," + NoteColumns.NOTE_ID +" TEXT,"
-				   						+ NoteColumns.NOTE_TITLE + " TEXT,"+ NoteColumns.NOTE_CONTENT + " TEXT, " + NoteColumns.NOTE_DATE+ " TEXT, "+ NoteColumns.NOTE_SYNC_FLAG  
+				   						+ NoteColumns.NOTE_TITLE + " TEXT,"+ NoteColumns.NOTE_CONTENT + " TEXT, " + NoteColumns.NOTE_DATE+ " TEXT, "+ NoteColumns.NOTE_IMAGE 
+				   						+ " TEXT, " + NoteColumns.NOTE_SYNC_FLAG  
 				   						+ " INTEGER " + ")";
 		   Log.d("creating notes table with the query : ",CREATE_NOTES_TABLE);
 	        db.execSQL(CREATE_NOTES_TABLE);
@@ -66,7 +68,7 @@ public class SqlUtil extends SQLiteOpenHelper {
 	    SQLiteDatabase db = this.getReadableDatabase();
 	 
 	    Cursor cursor = db.query(NoteColumns.TABLE_NOTES, new String[] { NoteColumns.NOTE_ID,NoteColumns.NOTE_TITLE, 
-	    		NoteColumns.NOTE_CONTENT,NoteColumns.NOTE_DATE,NoteColumns.NOTE_SYNC_FLAG }, NoteColumns.NOTE_ID + "=?",
+	    		NoteColumns.NOTE_CONTENT,NoteColumns.NOTE_DATE,NoteColumns.NOTE_SYNC_FLAG,NoteColumns.NOTE_IMAGE}, NoteColumns.NOTE_ID + "=?",
 	            new String[] { id }, null, null, null, null);
 	    if (cursor != null){
 	        cursor.moveToFirst();
@@ -74,6 +76,7 @@ public class SqlUtil extends SQLiteOpenHelper {
 	   // Log.d("fro sql util get note : ",cursor.getColumnName(0)+cursor.getColumnName(3));
 	    //added new parameter to NoteBean constructor ,(cursor.getInt(4)==1)
 	    NoteBean note = new NoteBean(cursor.getString(0),cursor.getString(1), cursor.getString(2),cursor.getString(3),(cursor.getInt(4)==1));
+	    note.setNoteImage(cursor.getString(5));
 	    // return note
 	    return note;
 	}
@@ -85,6 +88,7 @@ public class SqlUtil extends SQLiteOpenHelper {
 	    values.put(NoteColumns.NOTE_TITLE, note.getNoteTitle()); 
 	    values.put(NoteColumns.NOTE_CONTENT,note.getNoteContent());
 	    values.put(NoteColumns.NOTE_DATE,note.getNoteDate());
+	    values.put(NoteColumns.NOTE_IMAGE,note.getNoteImage());
 	    //added this field
 	    if(note.getNoteSyncFlag()== true)
 	    {

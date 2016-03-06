@@ -5,36 +5,54 @@
     android:orientation="vertical"
     tools:context="com.example.demoapplication.FirstActivity" >
 
-
     <EditText
         android:id="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:layout_marginLeft="3dp"
+        android:layout_marginTop="20dp"
+        android:background="@android:color/transparent"
         android:ems="10"
-         android:background="@android:color/transparent"
         android:hint="Enter note title" />
+
     <View
-         android:layout_width="match_parent"
+        android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginTop="10dp"
-        android:background="#c0c0c0"/>
+        android:background="#c0c0c0" />
 
-    <EditText
-        android:id="@+id/contentText"
+    <ScrollView
+        android:id="@+id/newNoteScroll"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="3dp"
-        android:gravity="top|start"
-        android:inputType="textMultiLine"
-        android:background="@android:color/transparent"
-        android:lines="5"
-        android:ems="10"
-        android:hint="Enter note here" >
+        android:layout_height="wrap_content" >
 
-        <requestFocus />
-    </EditText>
-	
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <EditText
+                android:id="@+id/contentText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="15dp"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:gravity="top|start"
+                android:hint="Enter note here"
+                android:inputType="textMultiLine"
+                android:lines="5" >
+            </EditText>
+
+            <ImageView
+                android:id="@+id/noteNewImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <requestFocus />
+
 </LinearLayout>

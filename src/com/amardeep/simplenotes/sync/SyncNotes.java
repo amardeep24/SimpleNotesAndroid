@@ -30,6 +30,7 @@ public class SyncNotes {
 		        JSONObject noteObject = jsonArray.getJSONObject(i);
 		        NoteBean note=new NoteBean(noteObject.getString("noteId"), noteObject.getString("noteTitle"),
 		        		noteObject.getString("noteContent"), noteObject.getString("noteDate"), true);
+		        note.setNoteImage(noteObject.getString("noteImage"));
 		        webNoteList.add(note);
 		        //sqlUtil.addNote(note);
 			}

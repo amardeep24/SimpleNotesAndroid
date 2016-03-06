@@ -5,6 +5,8 @@ public class SimpleNotesConstants {
 	public static final String NOTE_SAVE_URL="http://2-dot-simple-notes-project.appspot.com/pages/saveNote.do";
 	public static final String NOTE_EDIT_URL="http://2-dot-simple-notes-project.appspot.com/pages/editNote.do";
 	public static final String NOTE_DELETE_URL="http://2-dot-simple-notes-project.appspot.com/pages/deleteNote.do";
+	public static final int PICK_IMAGE_REQUEST=1;
+	public static final int IMAGE_QUALITY=10;
 	public static final int CONNECTION_TIME_OUT=20000;
 	public static final int READ_TIME_OUT=15000;
 

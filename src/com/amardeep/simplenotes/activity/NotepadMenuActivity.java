@@ -12,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,6 +36,7 @@ import com.amardeep.simplenotes.adapter.NoteAdapter;
 import com.amardeep.simplenotes.bean.NoteBean;
 import com.amardeep.simplenotes.sync.SyncTask;
 import com.amardeep.simplenotes.util.GraphicsUtil;
+import com.amardeep.simplenotes.util.NoteNetworkUtil;
 import com.amardeep.simplenotes.util.SqlUtil;
 import com.amardeep.simplenotes.util.TimeDateUtil;
 
@@ -56,7 +58,8 @@ public class NotepadMenuActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notepad_menu);
-        GraphicsUtil.changeStatusBarColor(this);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        	GraphicsUtil.changeStatusBarColor(this);
         Button addNote=(Button)findViewById(R.id.button1);
         Log.i("File","Before entry");
         addNote.setOnClickListener(new OnClickListener(){
@@ -124,8 +127,13 @@ public class NotepadMenuActivity extends Activity {
         case R.id.action_sync:
         {
         	Log.i("sync","pressed");
-        	Toast.makeText(getApplicationContext(), "Syncing..", Toast.LENGTH_LONG).show();
-        	new SyncTask().execute(NotepadMenuActivity.this);
+        	if(NoteNetworkUtil.checkNetwork(this))
+        	{
+        		Toast.makeText(getApplicationContext(), "Syncing..", Toast.LENGTH_LONG).show();
+        		new SyncTask().execute(NotepadMenuActivity.this);
+        	}
+        	else
+        		Toast.makeText(getApplicationContext(), "No network available!", Toast.LENGTH_LONG).show();
         	return true;
         }
         }

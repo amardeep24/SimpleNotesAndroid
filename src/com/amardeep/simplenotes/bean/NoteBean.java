@@ -5,6 +5,7 @@ public class NoteBean {
 	private String noteContent;
 	private String noteDate;
 	private String noteId;
+	private String noteImage;
 	private Boolean noteSyncFlag;
 	
 	public NoteBean(String noteId,String noteTitle,String noteContent,String noteDate)
@@ -45,6 +46,12 @@ public class NoteBean {
 	}
 	public void setNoteContent(String noteContent) {
 		this.noteContent = noteContent;
+	}
+	public String getNoteImage() {
+		return noteImage;
+	}
+	public void setNoteImage(String noteImage) {
+		this.noteImage = noteImage;
 	}
 	public Boolean getNoteSyncFlag() {
 		return noteSyncFlag;

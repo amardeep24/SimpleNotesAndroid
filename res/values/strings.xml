@@ -12,10 +12,13 @@
     <string name="search_hint">Search notes</string>
     <string name="title_activity_search">Simple Note</string>
     <string name="action_save">Save</string>
-     <string name="action_reminder">Reminder</string>
+    <string name="action_attach">Attach</string>
+    <string name="action_reminder">Reminder</string>
     <string name="action_share">Share</string>
     <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
     <string name="action_sync">Sync</string>
+    <string name="action_redo">Redo</string>
+    <string name="action_undo">Undo</string>
 
 </resources>

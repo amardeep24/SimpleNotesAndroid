@@ -58,6 +58,7 @@ public class NoteNetworkUtil {
 			noteJsonObject.put("noteContent", note.getNoteContent());
 			noteJsonObject.put("flag", true);
 			noteJsonObject.put("noteDate", note.getNoteDate());
+			noteJsonObject.put("noteImage", note.getNoteImage());
 			
 			
 			String noteJson = noteJsonObject.toString();
@@ -71,6 +72,7 @@ public class NoteNetworkUtil {
 
 			if (responseCode == HttpsURLConnection.HTTP_OK) {
 
+				//StringBuffer responseString=new StringBuffer();
 				String line;
 				BufferedReader br = new BufferedReader(new InputStreamReader(
 						connection.getInputStream()));
