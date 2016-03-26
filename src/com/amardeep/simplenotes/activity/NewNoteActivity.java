@@ -96,7 +96,7 @@ public class NewNoteActivity extends Activity {
 			}
 			Log.d("note id hashcode generated during saving operation", noteId
 					+ noteDate);
-			Boolean noteSyncFlag = false;
+			boolean noteSyncFlag = false;
 			SqlUtil sqlUtil = new SqlUtil(NewNoteActivity.this);
 			NoteBean note = new NoteBean(noteId, title, content, noteDate,
 					noteSyncFlag);

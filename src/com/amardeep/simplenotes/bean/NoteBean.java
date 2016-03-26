@@ -6,7 +6,7 @@ public class NoteBean {
 	private String noteDate;
 	private String noteId;
 	private String noteImage;
-	private Boolean noteSyncFlag;
+	private boolean noteSyncFlag;
 	
 	public NoteBean(String noteId,String noteTitle,String noteContent,String noteDate)
 	 {
@@ -15,12 +15,21 @@ public class NoteBean {
 		 this.noteDate=noteDate;
 		 this.noteId=noteId;
 	 }
-	public NoteBean(String noteId,String noteTitle,String noteContent,String noteDate,Boolean noteSyncFlag)
+	public NoteBean(String noteId,String noteTitle,String noteContent,String noteDate,boolean noteSyncFlag)
 	 {
 		 this.noteTitle=noteTitle;
 		 this.noteContent=noteContent;
 		 this.noteDate=noteDate;
 		 this.noteId=noteId;
+		 this.noteSyncFlag=noteSyncFlag;
+	 }
+	public NoteBean(String noteId,String noteTitle,String noteContent,String noteDate,String noteImage,boolean noteSyncFlag)
+	 {
+		 this.noteTitle=noteTitle;
+		 this.noteContent=noteContent;
+		 this.noteDate=noteDate;
+		 this.noteId=noteId;
+		 this.noteImage=noteImage;
 		 this.noteSyncFlag=noteSyncFlag;
 	 }
 	 public String getNoteId() {
@@ -53,10 +62,10 @@ public class NoteBean {
 	public void setNoteImage(String noteImage) {
 		this.noteImage = noteImage;
 	}
-	public Boolean getNoteSyncFlag() {
+	public boolean getNoteSyncFlag() {
 		return noteSyncFlag;
 	}
-	public void setNoteSyncFlag(Boolean noteSyncFlag) {
+	public void setNoteSyncFlag(boolean noteSyncFlag) {
 		this.noteSyncFlag = noteSyncFlag;
 	}
 	

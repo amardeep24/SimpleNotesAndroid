@@ -14,7 +14,7 @@ public class EditTask extends AsyncTask<Object,Void,String>{
 	protected String doInBackground(Object... params) {
 		NoteBean note=(NoteBean)params[0];
 		Context context=(Context)params[1];
-		String response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_EDIT_URL, note,context);	
+		String response=NoteNetworkUtil.doPut(SimpleNotesConstants.NOTE_EDIT_URL, note,context);	
 		Log.d("EditTask",response);
 		return response;
 	}

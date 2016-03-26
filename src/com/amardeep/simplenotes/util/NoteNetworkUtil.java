@@ -34,6 +34,40 @@ public class NoteNetworkUtil {
 		}
 
 	}
+	public static String doGet(String requestURL,Context context) {
+		URL url;
+		String response = "";
+		try {
+			url = new URL(requestURL);
+
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setReadTimeout(SimpleNotesConstants.READ_TIME_OUT);
+			connection.setConnectTimeout(SimpleNotesConstants.CONNECTION_TIME_OUT);
+			connection.setRequestMethod("GET");
+			connection.setDoInput(true);
+			connection.setRequestProperty("Accept", "application/json");
+			Log.d("Connection opened", "connected");
+			int responseCode = connection.getResponseCode();
+			if (responseCode == HttpsURLConnection.HTTP_OK) {
+
+				String line;
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						connection.getInputStream()));
+				while ((line = br.readLine()) != null) {
+					response += line;
+
+				}
+				Log.d("OK response", response);
+			} else {
+				response = "error";
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		return response;
+	}
+
 
 	public static String doPost(String requestURL, NoteBean note,Context context) {
 		URL url;
@@ -90,7 +124,7 @@ public class NoteNetworkUtil {
 
 		return response;
 	}
-	public static String doGet(String requestURL,Context context) {
+	public static String doPut(String requestURL, NoteBean note,Context context) {
 		URL url;
 		String response = "";
 		try {
@@ -99,13 +133,35 @@ public class NoteNetworkUtil {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setReadTimeout(SimpleNotesConstants.READ_TIME_OUT);
 			connection.setConnectTimeout(SimpleNotesConstants.CONNECTION_TIME_OUT);
-			connection.setRequestMethod("GET");
+			connection.setRequestMethod("PUT");
 			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Content-Type", "application/json");
 			connection.setRequestProperty("Accept", "application/json");
 			Log.d("Connection opened", "connected");
+
+			JSONObject noteJsonObject = new JSONObject();
+
+			noteJsonObject.put("noteId", note.getNoteId());
+			noteJsonObject.put("noteTitle", note.getNoteTitle());
+			noteJsonObject.put("noteContent", note.getNoteContent());
+			noteJsonObject.put("flag", true);
+			noteJsonObject.put("noteDate", note.getNoteDate());
+			noteJsonObject.put("noteImage", note.getNoteImage());
+			
+			
+			String noteJson = noteJsonObject.toString();
+			Log.d("JSON sent",noteJson);
+			OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+			writer.write(noteJson);
+			writer.flush();
+			writer.close();
+
 			int responseCode = connection.getResponseCode();
+
 			if (responseCode == HttpsURLConnection.HTTP_OK) {
 
+				//StringBuffer responseString=new StringBuffer();
 				String line;
 				BufferedReader br = new BufferedReader(new InputStreamReader(
 						connection.getInputStream()));
@@ -117,11 +173,50 @@ public class NoteNetworkUtil {
 			} else {
 				response = "error";
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return response;
 	}
+	public static String doDelete(String requestURL, NoteBean note,Context context) {
+		URL url;
+		String response = "";
+		try {
+			String deleteUrl=requestURL+"/"+note.getNoteId();
+			url = new URL(deleteUrl);
+			
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setReadTimeout(SimpleNotesConstants.READ_TIME_OUT);
+			connection.setConnectTimeout(SimpleNotesConstants.CONNECTION_TIME_OUT);
+			connection.setRequestMethod("DELETE");
+			connection.setDoInput(true);
+			connection.setDoOutput(true);
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setRequestProperty("Accept", "application/json");
+			Log.d("Connection opened", "connected");
 
+			int responseCode = connection.getResponseCode();
+
+			if (responseCode == HttpsURLConnection.HTTP_OK) {
+
+				//StringBuffer responseString=new StringBuffer();
+				String line;
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						connection.getInputStream()));
+				while ((line = br.readLine()) != null) {
+					response += line;
+
+				}
+				Log.d("OK response", response);
+			} else {
+				response = "error";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return response;
+	}
+	
 }

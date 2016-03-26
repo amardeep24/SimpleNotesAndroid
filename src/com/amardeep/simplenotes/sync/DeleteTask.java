@@ -13,7 +13,7 @@ public class DeleteTask extends AsyncTask<Object,Void,String>{
 	protected String doInBackground(Object... params) {
 		NoteBean note=(NoteBean)params[0];
 		Context context=(Context)params[1];
-		String response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_DELETE_URL, note,context);	
+		String response=NoteNetworkUtil.doDelete(SimpleNotesConstants.NOTE_DELETE_URL, note,context);	
 		return response;
 	}
 

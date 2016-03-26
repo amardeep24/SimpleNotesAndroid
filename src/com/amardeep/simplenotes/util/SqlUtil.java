@@ -114,8 +114,13 @@ public class SqlUtil extends SQLiteOpenHelper {
 		    // looping through all rows and adding to list
 		    if (cursor.moveToFirst()) {
 		        do {
-		        	Log.d("sql :",cursor.getString(0)+cursor.getString(1)+cursor.getString(2)+cursor.getString(3));
-		        	 NoteBean note = new NoteBean(cursor.getString(1),cursor.getString(2), cursor.getString(3),cursor.getString(4));
+		        	 boolean noteSyncFlag=false;
+		        	Log.d("sql :",cursor.getString(0)+cursor.getString(1)+cursor.getString(2)+cursor.getString(3)+cursor.getString(4)+ cursor.getString(5)+cursor.getInt(6));
+		        	if(cursor.getInt(6)==1)
+		        	{
+		        		noteSyncFlag=true;
+		        	}
+		        	NoteBean note = new NoteBean(cursor.getString(1),cursor.getString(2), cursor.getString(3),cursor.getString(4),cursor.getString(5),noteSyncFlag);
 		            // Adding contact to list
 		            noteList.add(note);
 		        } while (cursor.moveToNext());
@@ -134,6 +139,10 @@ public class SqlUtil extends SQLiteOpenHelper {
 		    values.put(NoteColumns.NOTE_DATE,note.getNoteDate());
 		    if(note.getNoteImage()!=null)
 		    	values.put(NoteColumns.NOTE_IMAGE,note.getNoteImage());
+		    if(note.getNoteSyncFlag()== false)
+		    	values.put(NoteColumns.NOTE_SYNC_FLAG, 0);
+		    else
+		    	values.put(NoteColumns.NOTE_SYNC_FLAG, 1);
 		    Log.d("note id passed for updatation :",note.getNoteId());
 		    int result=db.update(NoteColumns.TABLE_NOTES, values, NoteColumns.NOTE_ID + " = ?",
 		            new String[] {noteId});

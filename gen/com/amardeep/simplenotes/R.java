@@ -49,56 +49,60 @@ public final class R {
         public static final int ic_undo_white_24dp=0x7f02000c;
     }
     public static final class id {
-        public static final int action_attach=0x7f0b001c;
-        public static final int action_delete=0x7f0b0022;
-        public static final int action_edit=0x7f0b0020;
-        public static final int action_note_save=0x7f0b0021;
-        public static final int action_redo=0x7f0b001d;
-        public static final int action_reminder=0x7f0b001f;
-        public static final int action_save=0x7f0b001b;
-        public static final int action_search=0x7f0b0018;
-        public static final int action_settings=0x7f0b0019;
-        public static final int action_share=0x7f0b0023;
-        public static final int action_sync=0x7f0b001a;
-        public static final int action_undo=0x7f0b001e;
+        public static final int action_attach=0x7f0b001e;
+        public static final int action_delete=0x7f0b0024;
+        public static final int action_edit=0x7f0b0022;
+        public static final int action_note_save=0x7f0b0023;
+        public static final int action_redo=0x7f0b001f;
+        public static final int action_reminder=0x7f0b0021;
+        public static final int action_save=0x7f0b001d;
+        public static final int action_search=0x7f0b001a;
+        public static final int action_settings=0x7f0b001b;
+        public static final int action_share=0x7f0b0025;
+        public static final int action_sync=0x7f0b001c;
+        public static final int action_undo=0x7f0b0020;
+        public static final int auto_sync_check=0x7f0b000b;
         public static final int button1=0x7f0b0006;
         public static final int child=0x7f0b0005;
-        public static final int content=0x7f0b000e;
+        public static final int content=0x7f0b0011;
         public static final int contentText=0x7f0b0002;
-        public static final int date=0x7f0b000c;
-        public static final int editContent=0x7f0b0011;
-        public static final int editScroll=0x7f0b0010;
-        public static final int editTitle=0x7f0b000b;
+        public static final int date=0x7f0b000f;
+        public static final int editContent=0x7f0b0014;
+        public static final int editScroll=0x7f0b0013;
+        public static final int editTitle=0x7f0b000e;
         public static final int grandparent=0x7f0b0004;
+        public static final int linearLayout1=0x7f0b000a;
         public static final int newNoteScroll=0x7f0b0001;
-        public static final int noteBorder=0x7f0b0016;
-        public static final int noteDate=0x7f0b0015;
-        public static final int noteEditImage=0x7f0b0012;
+        public static final int noteBorder=0x7f0b000c;
+        public static final int noteDate=0x7f0b0018;
+        public static final int noteEditImage=0x7f0b0015;
         public static final int noteNewImage=0x7f0b0003;
-        public static final int noteTitle=0x7f0b0014;
-        public static final int noteView=0x7f0b0013;
-        public static final int noteViewImage=0x7f0b000f;
-        public static final int optionsList=0x7f0b0017;
+        public static final int noteTitle=0x7f0b0017;
+        public static final int noteView=0x7f0b0016;
+        public static final int noteViewImage=0x7f0b0012;
+        public static final int optionsList=0x7f0b0019;
         public static final int parent=0x7f0b0008;
         public static final int searchView=0x7f0b0009;
         public static final int textView1=0x7f0b0007;
-        public static final int title=0x7f0b000a;
+        public static final int title=0x7f0b000d;
         public static final int titleText=0x7f0b0000;
-        public static final int viewNoteScroll=0x7f0b000d;
+        public static final int viewNoteScroll=0x7f0b0010;
     }
     public static final class layout {
         public static final int activity_new_note=0x7f030000;
         public static final int activity_notepad_menu=0x7f030001;
         public static final int activity_search=0x7f030002;
-        public static final int activity_view_note=0x7f030003;
-        public static final int note=0x7f030004;
-        public static final int note_option=0x7f030005;
-        public static final int notepad_options_list=0x7f030006;
+        public static final int activity_settings=0x7f030003;
+        public static final int activity_view_note=0x7f030004;
+        public static final int note=0x7f030005;
+        public static final int note_option=0x7f030006;
+        public static final int notepad_options_list=0x7f030007;
     }
     public static final class menu {
         public static final int menu=0x7f0a0000;
         public static final int new_note=0x7f0a0001;
-        public static final int view_note=0x7f0a0002;
+        public static final int settings=0x7f0a0002;
+        public static final int view_note=0x7f0a0003;
     }
     public static final class raw {
         public static final int executive=0x7f050000;
@@ -116,12 +120,13 @@ public final class R {
         public static final int action_sync=0x7f080010;
         public static final int action_undo=0x7f080012;
         public static final int app_name=0x7f080000;
-        public static final int hello_world=0x7f080005;
+        public static final int auto_sync=0x7f080005;
         public static final int menu_name=0x7f080001;
         public static final int new_note=0x7f080002;
         public static final int search_hint=0x7f080008;
         public static final int title_activity_new_note=0x7f080004;
         public static final int title_activity_search=0x7f080009;
+        public static final int title_activity_settings=0x7f080013;
         public static final int title_activity_view_note=0x7f080006;
     }
     public static final class style {

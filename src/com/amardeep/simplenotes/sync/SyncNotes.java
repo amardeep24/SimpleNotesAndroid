@@ -91,7 +91,10 @@ public class SyncNotes {
 			}
 			if(delete)
 			{	
-				sqlUtil.deleteNote(localNoteList.get(i).getNoteId());
+				Log.d("SynNotes",String.valueOf(localNoteList.get(i).getNoteSyncFlag()));
+				Log.d("SynNotes",String.valueOf(localNoteList.get(i).getNoteTitle()));
+				if(localNoteList.get(i).getNoteSyncFlag()== true)
+					sqlUtil.deleteNote(localNoteList.get(i).getNoteId());
 				
 			}
 		}
@@ -100,13 +103,34 @@ public class SyncNotes {
 		return "success";
 	}
 
-	public String syncNotesPhone() {
+	public String syncNotesPhone(Context context) {
+		List<NoteBean> localNoteList=new ArrayList<NoteBean>();
+		List<NoteBean> unsyncedList=new ArrayList<NoteBean>();
 		// check for new notes in phone
-
+		SqlUtil sqlUtil=new SqlUtil(context);
+		localNoteList=sqlUtil.getAllNotes();
+		Log.d("SyncNotes","inside syncNotesPhone");
+		for(NoteBean note:localNoteList)
+		{
+			
+			if(note.getNoteSyncFlag()==false)
+			{
+				unsyncedList.add(note);
+				Log.d("SyncNotes","note added");
+			}
+			
+		}
+		for(NoteBean note:unsyncedList)
+		{
+			String response=NoteNetworkUtil.doPost(SimpleNotesConstants.NOTE_SAVE_URL, note, context);
+			note.setNoteSyncFlag(true);
+			sqlUtil.updateNote(note, note.getNoteId());
+			Log.d("SyncNotes",response);
+		}
 		// check for edited notes in phone
 
 		// check for deleted notes in phone
 		
-		return null;
+		return "success";
 	}
 }
